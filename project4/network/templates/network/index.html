@@ -2,6 +2,7 @@
 
 {% block body %}
 
+    
     <div id="new-view"> 
         <h3>New Post</h3>
 
@@ -9,24 +10,38 @@
         <form id="new_post-form" action="{% url 'new_post' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" value="{{ request.user }}" name="creator">
-            <textarea class="form-control" id="new-content" placeholder="What's up?" name="content"></textarea>
-            <input type="submit" class="btn btn-primary" id = "new_email"/>
+            {% if user.is_authenticated %}
+                <textarea class="form-control" id="new-content" placeholder="What's up?" name="content"></textarea>
+                <input type="submit" class="btn btn-primary" id = "new_email"/>
+            {% else %}
+                Sign in to make a post!
+            {% endif %}
         </form> 
     
     </div>
 
-
-    <div id="all_posts-view">
-        <h1> all posts </h1>
-        
-    </div>
-
-    <div id="following-view">   
-        
-    </div>
-
     <div id="profile-view">
-        
+
+        <div id="profile_details">
+            
+        </div>
+<!--
+        {% if user.is_authenticated %}
+            
+            <form action = "{% url 'follow' %}">
+
+                <input type="hidden" name="current_user" value="{{user}}">
+                <button type="submit"> Follow This User </button>
+
+            </form>
+
+        {% endif %}
+        -->
     </div>
+
+    <div id="posts-view">        
+    </div>
+
+
     
 {% endblock %}

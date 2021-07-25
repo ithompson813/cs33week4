@@ -8,7 +8,9 @@
 
 #new-view {
 
-    border-style: outset;
+    border-top: outset;
+    border-right: outset;
+    border-left: outset;
     padding: 3%;
 
 

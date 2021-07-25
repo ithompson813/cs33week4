@@ -1,17 +1,16 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 import json
+from django.http import JsonResponse
 
 from .models import User, Post
 
 
 def index(request):
-    
-    
-
     return render(request, "network/index.html")
 
 
@@ -67,7 +66,7 @@ def register(request):
         return render(request, "network/register.html")
 
 
-
+@login_required
 def new_post(request):
 
     # get info from html form
@@ -85,12 +84,64 @@ def new_post(request):
     return HttpResponseRedirect(reverse("index"))
 
 
-def post(request, post_id):
+def posts(request, posts):
 
-   
-    post = Post.objects.get(user=request.user, id=post_id)
+    # return JSON data for all posts
+    if posts == 'all':
+
+        # track all posts
+        posts = Post.objects.all()
+
+        # order by post timestamp
+        posts = posts.order_by("-timestamp").all()
+
+
+    # return JSON data only for posts that the user follows
+    if posts == 'following':
+
+        # get list of followed users
+        followed_users = request.user.following.all()
+
+        # use list to filter posts
+        posts = Post.objects.filter(creator__in=followed_users)   
+
+    if posts == 'profile':
+
+        # get posts only created by current user
+        posts = Post.objects.filter(creator=request.user)
+
+
+    # pass JSON data
+    if posts:
+        return JsonResponse([post.serialize() for post in posts], safe=False)
     
-
-    return HttpResponse(post)
+    else:
+        return JsonResponse({"error": "No Posts Found"}, status=400)
 
     
+def get_user(request, user):
+    user = User.objects.get(username=user)
+    return JsonResponse(user.serialize())
+
+
+
+def prof_posts(request, user):
+
+    # get posts only created by current user
+    user = User.objects.get(username=user)
+    posts = Post.objects.filter(creator=user)
+
+
+    # pass JSON data
+    if posts:
+        return JsonResponse([post.serialize() for post in posts], safe=False)
+    
+    else:
+        return JsonResponse({"error": "No Posts Found"}, status=400)
+
+
+@login_required
+def follow(request):
+    print(request.user)
+    print(request.GET.get('current_user'))
+    return HttpResponse("he")
