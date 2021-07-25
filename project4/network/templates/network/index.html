@@ -2,20 +2,31 @@
 
 {% block body %}
 
+    <div id="new-view"> 
+        <h3>New Post</h3>
+
+        <!-- Form to create new post-->
+        <form id="new_post-form" action="{% url 'new_post' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" value="{{ request.user }}" name="creator">
+            <textarea class="form-control" id="new-content" placeholder="What's up?" name="content"></textarea>
+            <input type="submit" class="btn btn-primary" id = "new_email"/>
+        </form> 
+    
+    </div>
+
+
     <div id="all_posts-view">
-        xd1
+        <h1> all posts </h1>
+        
     </div>
 
-    <div id="following-view">
-        xd2
-    </div>
-
-    <div id="new-view">
-        xd3
+    <div id="following-view">   
+        
     </div>
 
     <div id="profile-view">
-        xd4
+        
     </div>
     
 {% endblock %}

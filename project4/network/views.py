@@ -3,12 +3,15 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+import json
 
-from .models import User
+from .models import User, Post
 
 
 def index(request):
     
+    
+
     return render(request, "network/index.html")
 
 
@@ -62,3 +65,32 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+
+def new_post(request):
+
+    # get info from html form
+    content = request.POST.get("content")
+    creator = request.POST.get("creator")
+
+    # find user object from username
+    creator = User.objects.get(username=creator)
+
+    # create and save post object
+    post = Post(creator=creator, content=content)
+    post.save()
+
+    # return user to index page
+    return HttpResponseRedirect(reverse("index"))
+
+
+def post(request, post_id):
+
+   
+    post = Post.objects.get(user=request.user, id=post_id)
+    
+
+    return HttpResponse(post)
+
+    
