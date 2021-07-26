@@ -10,11 +10,15 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("new_post", views.new_post, name="new_post"),
-    path("follow", views.follow, name="follow"),
+    
 
     # API Routes
     path("posts/<str:posts>", views.posts, name="posts"),
     path("user/<str:user>", views.get_user, name="get_user"),
     path("prof_posts/<str:user>", views.prof_posts, name="prof_posts"),
+    path("follow", views.follow, name="follow"),
+    path("unfollow", views.unfollow, name="unfollow"),
+    path("edit", views.edit,  name="edit"),
+    path("like", views.like, name="like")
 
 ]

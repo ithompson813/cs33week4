@@ -1,11 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 import json
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 from .models import User, Post
 
@@ -110,15 +112,15 @@ def posts(request, posts):
         # get posts only created by current user
         posts = Post.objects.filter(creator=request.user)
 
-
-    # pass JSON data
     if posts:
         return JsonResponse([post.serialize() for post in posts], safe=False)
+        
     
     else:
         return JsonResponse({"error": "No Posts Found"}, status=400)
 
-    
+
+# the get user path returns a serialized view of the user
 def get_user(request, user):
     user = User.objects.get(username=user)
     return JsonResponse(user.serialize())
@@ -140,8 +142,62 @@ def prof_posts(request, user):
         return JsonResponse({"error": "No Posts Found"}, status=400)
 
 
+
 @login_required
+@csrf_exempt
 def follow(request):
-    print(request.user)
-    print(request.GET.get('current_user'))
+
+    data = json.loads(request.body)
+    user = User.objects.get(username = data['user']['name'])
+    current_user = User.objects.get(username = data['current_user'])
+    
+    current_user.following.add(user)
+    user.followers.add(current_user)
+
+    return HttpResponse("ye")
+
+
+@login_required
+@csrf_exempt
+def unfollow(request):
+
+    data = json.loads(request.body)
+    user = User.objects.get(username = data['user']['name'])
+    current_user = User.objects.get(username = data['current_user'])
+    
+    current_user.following.remove(user)
+    user.followers.remove(current_user)
+
+    return HttpResponse("he")
+
+
+@login_required
+@csrf_exempt
+def edit(request):
+
+    data = json.loads(request.body)
+    post = Post.objects.get(id=data['post'])
+    post.content = data['content']
+    post.save()
+
+    return HttpResponse("he")
+
+
+  
+@login_required
+@csrf_exempt
+def like(request):  
+
+    data = json.loads(request.body)
+    post = Post.objects.get(id = data['post']['id'])
+    user = User.objects.get(username = data['user'])
+    
+    if data['user'] in data['post']['likes']:
+        post = Post.objects.get(id = data['post']['id'])
+        post.likes.remove(user)
+    else:
+        post.likes.add(user)
+
+    print(data)
+
     return HttpResponse("he")

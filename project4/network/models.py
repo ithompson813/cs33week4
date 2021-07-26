@@ -10,8 +10,8 @@ class User(AbstractUser):
         return {
             "id": self.id,
             "name": self.username,
-            "followers": [user.username for user in self.following.all()],
-            "following": [user.username for user in self.followers.all()]
+            "followers": [user.username for user in self.followers.all()],
+            "following": [user.username for user in self.following.all()]
         }
 
 
@@ -20,7 +20,7 @@ class Post(models.Model):
     content = models.CharField(max_length=280)
     creator = models.ForeignKey('User', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
-    likes = models.ManyToManyField(User, related_name='like')
+    likes = models.ManyToManyField('User', related_name='like')
 
     def __str__(self):
         return f"{self.creator} said: {self.content}"
